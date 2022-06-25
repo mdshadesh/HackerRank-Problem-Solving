@@ -3,34 +3,38 @@ import java.util.*;
 
 public class Solution {
 
-    public static void main(String[] args) throws IOException {
-        /* Enter your code here. Read input from STDIN. Print output to STDOUT. Your class should be named Solution. */
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int t = Integer.parseInt(br.readLine());
-        while(t-->0){
-            int n = Integer.parseInt(br.readLine());
-            String[]grid = new String[n];
-            for(int i=0;i<n;i++)
-                grid[i] = sort(br.readLine());
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        int T = input.nextInt();
+        StringBuilder  output = new StringBuilder("");
+        for(int t = 0; t < T; t++){
             
-            boolean ok = true;
+            int n = input.nextInt();input.nextLine();
+            char[][] grid = new char[n][n];
             
-            for(int i=0;i<n;i++){
-                for(int j=1;j<n;j++){
-                    if(grid[j].charAt(i) < grid[j-1].charAt(i)){
-                        ok = false;
-                        break;
-                    }
-                }
+            //Read in rows of grid and sort
+            for(int i = 0; i < n; i++){
+                grid[i] = input.nextLine().toCharArray();
+                Arrays.sort(grid[i]);
             }
-            System.out.println(ok?"YES":"NO");
             
-        }
+            if(checkColumns(grid))
+                output.append("YES\n");
+            else
+                output.append("NO\n");
+            
+        } 
+        System.out.print(output);
     }
     
-    public static String sort(String s){
-        char[] array = s.toCharArray();
-        Arrays.sort(array);
-        return new String(array);
+    //Checks if grid columns are lexicographically ordered
+    static boolean checkColumns(char[][] grid){
+        for(int i = 0; i < grid.length; i++){//column
+            for(int j = 1; j < grid.length; j++){//row
+                if(grid[j][i] < grid[j-1][i])
+                    return false;
+            }
+        }
+        return true;
     }
 }
