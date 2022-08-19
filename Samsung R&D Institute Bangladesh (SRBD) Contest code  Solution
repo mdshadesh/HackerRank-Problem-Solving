@@ -1,0 +1,581 @@
+/* 
+Samsung wants to build a new R&D center in Bangladesh with N employees. The employees are numbered from 0 to N - 1. Now Samsung hires N employees. Given a 0-indexed integer array hires which contains employee IDs sorted in decreasing order of their seniority level and all the employee IDs will be distinct.
+Now Samsung wants to implement 3 types of changes to run the R&D center successfully. Can you handle Q queries of the following types and help Samsung to build the new R&D center and their system?
+
+
+Type 1: There will be 2 employee IDs A & B - meaning A & B form a team. If A or B belong to any team then these 2 teams will form a new team or they already belong to the same team then you don't have to form any team because they already belong in the same team.
+Type 2: Given an employee ID X, employee X has been promoted to the next level.
+Type 3: Now given an employee ID Y, you have to check who is the most senior employee in Y employee's team and return his employee ID. If there are multiple same level employees in the team then the employee with greater employee ID will be preferred.
+Input Format
+
+In the first line you're given N and Q. The next line contains N space separated integers denoting the elements of the hires array. Then next Q lines each will contain any of the given 3 types of changes.
+Constraints
+1 <= N <= 10^5
+0 <= hires[i] <= N - 1
+1 <= Q <= 10^5
+0 <= A, B, X, Y <= N - 1
+Output Format
+Answer the type 3 query and each answer will be seperated by a new line.
+Sample Input 0
+5 6
+0 1 2 3 4
+1 0 3
+1 2 4
+2 0
+3 1
+1 1 0
+3 2
+Sample Output 0
+1
+2
+*/
+#include <bits/stdc++.h>
+#define mx 100007
+#define pii pair<int,int>
+#define ff first
+#define ss second
+using namespace std;
+#define ll long long
+
+int par[mx];
+set<pii>st[mx];
+
+int Find(int u)
+{
+  if(par[u]==u)
+    return u;
+  return par[u]= Find(par[u]);
+}
+
+void unite(int u, int v)
+{
+  int paru= Find(u);
+  int parv= Find(v);
+  
+  if(paru==parv)
+    return;
+
+  if(st[paru].size()>st[parv].size())
+  {
+    for( auto x: st[parv] )
+      st[paru].insert(x);
+    st[parv].clear();
+    par[parv]= paru;
+  }
+  else
+  {
+    for( auto x: st[paru] )
+      st[parv].insert(x);
+    st[paru].clear();
+    par[paru]= parv;
+  }
+}
+
+int lvl[mx];
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    int n,q;
+    cin>>n>>q;
+
+    for( int i=0;i<n;i++ )
+    {
+      int x;
+      cin>>x;
+
+      lvl[x]= n-i;
+      par[x]= x;
+
+      st[x].insert({n-i,x});
+    }
+
+    while(q--)
+    {
+      int t;
+      cin>>t;
+
+      if(t==1)
+      {
+        int a,b;
+        cin>>a>>b;
+
+        unite(a,b);
+      }
+      else if(t==2)
+      {
+        int x;
+        cin>>x;
+
+        int paru= Find(x);
+
+        st[paru].erase(st[paru].lower_bound({lvl[x],x}));
+        lvl[x]++;
+        st[paru].insert({lvl[x],x});
+      }
+      else
+      {
+        int x;
+        cin>>x;
+
+        int paru= Find(x);
+        int val= (*(st[paru].rbegin())).ss;
+
+        cout<<val<<"\n";
+      }
+    }
+}
+
+
+
+
+/*
+Given an array of N integers and Q queries. In each query an integer x is given. For each query you've to count the number of coprimes of x in that array.
+Remember that two integers x and y are said to be coprime if they have no common divisor other than 1 that means gcd(x, y) = 1.
+Input Format
+In the first line you're given N and Q. Next line contains N space separated integers denoting the elements of the array a. Then the following Q lines contain an integer x.
+Constraints
+1 <= N, Q, a[i], x <= 200000
+Output Format
+For each query print the answer of the query in each line.
+Sample Input 0
+5 5
+1 2 3 4 5
+1
+2
+3
+4
+5
+Sample Output 0
+5
+3
+4
+3
+4
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+ 
+const int MAX = 200000;
+vector<int> primes;
+bool comp[MAX + 5];
+int freq[MAX + 5], seen[MAX + 5];
+ 
+void sieve()
+{
+    for (int i = 2; i * i <= MAX; i++)
+    {
+        if (!comp[i])
+        {
+            for (int j = i * i; j <= MAX; j += i)
+            {
+                comp[j] = 1;
+            }
+        }
+    }
+    primes.push_back(2);
+    for (int i = 3; i <= MAX; i += 2)
+    {
+        if (!comp[i]) primes.push_back(i);
+    }
+}
+ 
+bool checkBit(int n, int pos)
+{
+    return (n & (1 << pos)) > 0;
+}
+ 
+vector<int> factorize(int elem)
+{
+    vector<int> factors;
+    for (int i = 0; i < primes.size() && primes[i] <= (elem / primes[i]); i++)
+    {
+        if (elem % primes[i] == 0)
+        {
+            factors.push_back(primes[i]);
+            while (elem % primes[i] == 0)
+            {
+                elem /= primes[i];
+            }
+        }
+    }
+    if (elem > 1) factors.push_back(elem);
+    return factors;
+}
+ 
+void process(int elem)
+{
+    auto factors = factorize(elem);
+    int SIZE = factors.size();
+    for (int mask = 1; mask < (1 << SIZE); mask++)
+    {
+        int constructed_num = 1;
+        for (int i = 0; i < SIZE; i++)
+        {
+            if (checkBit(mask, i))
+            {
+                constructed_num *= factors[i];
+            }
+        }
+        freq[constructed_num]++;
+    }
+}
+ 
+int get_copr_pair_count_with(int x, int n)
+{
+    if (seen[x] != -1) return seen[x];
+    auto factors = factorize(x);
+    int SIZE = factors.size();
+    int result = 0;
+    for (int mask = 1; mask < (1 << SIZE); mask++)
+    {
+        int constructed_num = 1;
+        int parity = 0;
+        for (int i = 0; i < SIZE; i++)
+        {
+            if (checkBit(mask, i))
+            {
+                constructed_num *= factors[i];
+                parity++;
+            }
+        }
+        if (parity % 2 == 0)
+            result -= freq[constructed_num];
+        else
+            result += freq[constructed_num];
+    }
+    return seen[x] = n - result;
+}
+ 
+int main()
+{
+    sieve();
+    memset(seen, -1, sizeof seen);
+    int n, q, elem;
+    scanf("%d %d", &n, &q);
+    for (int i = 0; i < n; i++)
+    {
+        scanf("%d", &elem);
+        process(elem);
+    }
+    while(q--)
+    {
+        int x;
+        scanf("%d", &x);
+        printf("%d\n", get_copr_pair_count_with(x, n));
+    }
+    return 0;
+}
+ 
+
+
+/*
+There is an island surrounded by oil mines.
+You will be given n companies and m oil mines having values.
+You have to distribute the mines to “n” companies in a fair manner.
+Remember the companies can have oil mines adjacent to each other and not in between of each other.
+After distributing them compute the difference of oil mines from the company getting highest and company getting lowest.
+This number should be minimum.(then only the distribution can be termed as fair).
+Input
+2
+2 4
+6 13 10 2
+2 4
+6 10 13 2
+Output
+5
+1
+Assuming
+0<= N <= M <= 50
+for(int i=0; i<M; i++){
+        for(int j=2; j<=M; j++){
+            for(int num_part=2; num_part<=j; num_part++){
+                int maxPoss=-1, minPoss=999999, minDiff=999999;
+                for(int n_elem_in_last_part=1; n_elem_in_last_part<=j-num_part+1; n_elem_in_last_part++){
+                    int ind_begin = i+j-n_elem_in_last_part;
+                    int ma1 = DP_max[i][ind_begin-i][num_part-1];
+                    int ma2 = DP_max[ind_begin][n_elem_in_last_part][1];
+                    int mi1 = DP_min[i][ind_begin-i][num_part-1];
+                    int mi2 = DP_min[ind_begin][n_elem_in_last_part][1];
+                    int maxV = max(ma1, ma2);
+                    int minV = min(mi1, mi2);
+                    if(maxV-minV < minDiff){
+                        minDiff = maxV-minV;
+                        maxPoss=maxV;
+                        minPoss=minV;
+                    }
+                }
+                DP_max[i][j][num_part]=maxPoss;
+                DP_min[i][j][num_part]=minPoss;
+            }
+        }
+    }
+for(int i=0; i<M; i++){
+        for(int j=i+1; j<M; j++){
+            int num_elems = j-i+1;
+            for(int num_part=2; num_part<=num_elems; num_part++){
+                for(int x=1; x<num_elems-num_part+1; x++){
+                    DP_max[i]
+                }
+            }
+        }
+    }
+*/
+
+
+
+#include <iostream>
+using namespace std;
+#define lim 50
+
+int N,M;
+int oilMines[2*lim];
+int DP_max[lim][lim][lim];
+int DP_min[lim][lim][lim];
+int verbose=0;
+
+void debug(){
+
+    cout<<"\nOIL MINES : \n";
+    for(int i=0; i<M; i++){
+        cout<<oilMines[i]<<"\t";
+    }
+    cout<<endl;
+
+    for(int x=0; x<=N; x++){
+        cout<<"\nDP_MAX FOR NUMBER OF PARTITIONS = "<<x<<endl;
+        for(int i=0; i<M; i++){
+            for(int j=0; j<M; j++){
+                if(DP_max[i][j][x]==-1)
+                    cout<<"N\t";
+                else
+                    cout<<DP_max[i][j][x]<<"\t";
+            }
+            cout<<endl;
+        }
+
+        cout<<"\nDP_MIN FOR NUMBER OF PARTITIONS = "<<x<<endl;
+        for(int i=0; i<M; i++){
+            for(int j=0; j<M; j++){
+                if(DP_min[i][j][x]==999999)
+                    cout<<"N\t";
+                else
+                    cout<<DP_min[i][j][x]<<"\t";
+            }
+            cout<<endl;
+        }
+
+    }
+}
+
+
+void DP(){
+
+
+    // Always j>=num_part
+    // j => Length of array starting from i  0<=j<=M
+
+    for(int i=0; i<M; i++){
+        for(int num_part=1; num_part<=N; num_part++){
+            DP_max[i][i][num_part]=oilMines[i];
+            DP_min[i][i][num_part]=oilMines[i];
+        }
+    }
+
+
+    for(int i=0; i<M; i++){
+        for(int j=i+1; j<M; j++){
+            int sum=0;
+            for(int x=i; x<=j; x++)
+                sum+=oilMines[x];
+            DP_max[i][j][1]=sum;
+            DP_min[i][j][1]=sum;
+        }
+    }
+
+    for(int num_part=2; num_part<=N; num_part++){
+        for(int i=0; i<M; i++){
+            for(int j=i+1; j<M; j++){
+                int num_elems = j-i+1;
+                if(num_elems<num_part)
+                    continue;
+                int absMax=-1,absMin=999999, minDiff = 999999;
+                if(verbose){
+                    cout<<"\n FOR num_part = "<<num_part<<"\ti = "<<i<<"\tj = "<<j;
+                }
+                for(int x=1; x<=num_elems-num_part+1; x++){
+                    int start_ind = i;
+                    int end_ind = i+x-1;
+                    int maxV = max(DP_max[end_ind+1][j][num_part-1], DP_max[i][end_ind][1]);
+                    int minV = min(DP_min[end_ind+1][j][num_part-1], DP_min[i][end_ind][1]);
+
+                    int diff = maxV-minV;
+                    if(verbose){
+                        cout<<"\n\tFOR x = "<<x<<"\n";
+                        cout<<"\t\tstart_ind = "<<start_ind<<"\tend_ind =  "<<end_ind<<"\tmaxV = "<<maxV<<"\tminV = "<<minV<<"\t diff = "<<diff<<endl;
+                    }
+                    if(diff<minDiff){
+                        minDiff=diff;
+                        absMax=maxV;
+                        absMin=minV;
+                        if(verbose)
+                            cout<<"\t\tdiff<minDiff\t UPDATED minDiff = "<<minDiff<<"\tabsMax = "<<absMax<<"\tabsMin = "<<absMin<<endl;
+                    }
+                }
+                if(verbose){
+                    cout<<"\n UPDATED DP_max and DP_min for i, j, num_part = "<<i<<" "<<j<<" "<<num_part<<"\t TO : "<<absMax<<" "<<absMin<<endl;
+                }
+                DP_max[i][j][num_part]=absMax;
+                DP_min[i][j][num_part]=absMin;
+            }
+        }
+    }
+    if(verbose)
+        debug();
+
+    return;
+}
+
+
+
+int main(){
+    int t;
+    cin>>t;
+    int ctr=1;
+    while(t>0){
+        t--;
+        cin>>N>>M;
+        for(int i=0; i<M; i++){
+            int x;
+            cin>>x;
+            oilMines[i]=x;
+            oilMines[M+i]=x;
+        }
+        M*=2;
+        for(int i=0; i<M; i++){
+            for(int j=0; j<M; j++){
+                for(int k=1; k<M; k++){
+                    DP_max[i][j][k]=-1;
+                    DP_min[i][j][k]=999999;
+                }
+            }
+        }
+        DP();
+
+        //debug();
+        int minDiff=999999;
+        M/=2;
+        for(int i=0; i<M; i++){
+            int diff = DP_max[i][M+i-1][N]-DP_min[i][M+i-1][N];
+            if(diff<minDiff)
+                minDiff=diff;
+
+        }
+        cout<<"#"<<ctr<<" "<<minDiff<<endl;
+        ctr+=1;
+    }
+    return 1;
+}
+
+
+/*A Doctor travels from a division to other division where divisions are connected like a graph(directed graph) and the edge
+weights are the probabilities of the doctor going from that division to other connected division but the doctor stays 10mins at 
+each division now there will be given time and had to find the division in which he will be staying by that time and is determined 
+by finding division which has high probability. Input is number of test cases followed by the number of nodes, edges, time after 
+which we need to find the division in which he will be there, the edges starting point, end point, probability. Note: If he reaches
+a point where there are no further nodes then he leaves the lab after 10 mins and the traveling time is not considered and during 
+that 10min at 10th min he will be in next division, so be careful
+
+find the division with highest probability that doctor is in it after 10 min is div 3 and probability is 0.7.
+
+After 9 minutes dr has yet to move to another division he is in div 1 and probability is 1.0. Forty minutes later the division
+with highest probabilty is 6 and probabilty is 0.77400
+
+input 1 6 10 40 1 2 0.3 1 3 0.7 3 3 0.2 3 4 0.8 2 4 1 4 5 0.9 4 4 0.1 5 6 1.0 6 3 0.5 6 6 0.5
+
+output  6
+
+input 1 6 10 10 1 2 0.3 1 3 0.7 3 3 0.2 3 4 0.8 2 4 1 4 5 0.9 4 4 0.1 5 6 1.0 6 3 0.5 6 6 0.5
+
+output  3 
+*/
+
+
+#include<iostream>
+using namespace std;
+
+int N,E,T,start;
+float adj_mat[1000][1000];
+
+
+void solution()
+{
+  cin>>N>>E>>T;
+  for(int i=0;i<1000;i++)
+      for(int j=0;j<1000;j++)
+      {
+          adj_mat[i][j]=0;
+
+      }
+   for(int i=0;i<E;i++)
+   {
+       int U,V;
+       float probab;
+       cin>>U>>V>>probab;
+       adj_mat[U-1][V-1]=probab;
+
+   }
+   cin>>start;
+
+   int num_traversal=T/10;
+   int curr_node=start;
+
+   while(num_traversal>0)
+   {
+
+       int next_node=-1;
+       int max_probab=0;
+       for(int i=0;i<N;i++)
+       {
+           if(adj_mat[curr_node][i]>max_probab)
+           {
+
+               max_probab=adj_mat[curr_node][i];
+               next_node=i;
+           }
+
+       }
+       if(next_node==-1)
+       {
+           cout<<"Exited the last lab"<<endl;
+           return;
+
+       }
+
+       curr_node=next_node;
+       num_traversal--;
+
+
+   }
+
+
+   cout<<"After"<<T<<" minutes,at node: "<<curr_node<<endl;
+
+}
+
+int main()
+{  int t;
+   cin>>t;
+   while(t--)
+   {
+       solution();
+   }
+
+    return 0;
+
+}
+
+
