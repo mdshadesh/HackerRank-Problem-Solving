@@ -1,0 +1,272 @@
+/* 
+Samsung wants to build a new R&D center in Bangladesh with N employees. The employees are numbered from 0 to N - 1. Now Samsung hires N employees. Given a 0-indexed integer array hires which contains employee IDs sorted in decreasing order of their seniority level and all the employee IDs will be distinct.
+Now Samsung wants to implement 3 types of changes to run the R&D center successfully. Can you handle Q queries of the following types and help Samsung to build the new R&D center and their system?
+
+
+Type 1: There will be 2 employee IDs A & B - meaning A & B form a team. If A or B belong to any team then these 2 teams will form a new team or they already belong to the same team then you don't have to form any team because they already belong in the same team.
+Type 2: Given an employee ID X, employee X has been promoted to the next level.
+Type 3: Now given an employee ID Y, you have to check who is the most senior employee in Y employee's team and return his employee ID. If there are multiple same level employees in the team then the employee with greater employee ID will be preferred.
+Input Format
+
+In the first line you're given N and Q. The next line contains N space separated integers denoting the elements of the hires array. Then next Q lines each will contain any of the given 3 types of changes.
+Constraints
+1 <= N <= 10^5
+0 <= hires[i] <= N - 1
+1 <= Q <= 10^5
+0 <= A, B, X, Y <= N - 1
+Output Format
+Answer the type 3 query and each answer will be seperated by a new line.
+Sample Input 0
+5 6
+0 1 2 3 4
+1 0 3
+1 2 4
+2 0
+3 1
+1 1 0
+3 2
+Sample Output 0
+1
+2
+*/
+#include <bits/stdc++.h>
+#define mx 100007
+#define pii pair<int,int>
+#define ff first
+#define ss second
+using namespace std;
+#define ll long long
+
+int par[mx];
+set<pii>st[mx];
+
+int Find(int u)
+{
+  if(par[u]==u)
+    return u;
+  return par[u]= Find(par[u]);
+}
+
+void unite(int u, int v)
+{
+  int paru= Find(u);
+  int parv= Find(v);
+  
+  if(paru==parv)
+    return;
+
+  if(st[paru].size()>st[parv].size())
+  {
+    for( auto x: st[parv] )
+      st[paru].insert(x);
+    st[parv].clear();
+    par[parv]= paru;
+  }
+  else
+  {
+    for( auto x: st[paru] )
+      st[parv].insert(x);
+    st[paru].clear();
+    par[paru]= parv;
+  }
+}
+
+int lvl[mx];
+
+int main()
+{
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+
+    int n,q;
+    cin>>n>>q;
+
+    for( int i=0;i<n;i++ )
+    {
+      int x;
+      cin>>x;
+
+      lvl[x]= n-i;
+      par[x]= x;
+
+      st[x].insert({n-i,x});
+    }
+
+    while(q--)
+    {
+      int t;
+      cin>>t;
+
+      if(t==1)
+      {
+        int a,b;
+        cin>>a>>b;
+
+        unite(a,b);
+      }
+      else if(t==2)
+      {
+        int x;
+        cin>>x;
+
+        int paru= Find(x);
+
+        st[paru].erase(st[paru].lower_bound({lvl[x],x}));
+        lvl[x]++;
+        st[paru].insert({lvl[x],x});
+      }
+      else
+      {
+        int x;
+        cin>>x;
+
+        int paru= Find(x);
+        int val= (*(st[paru].rbegin())).ss;
+
+        cout<<val<<"\n";
+      }
+    }
+}
+
+
+
+
+/*
+Given an array of N integers and Q queries. In each query an integer x is given. For each query you've to count the number of coprimes of x in that array.
+Remember that two integers x and y are said to be coprime if they have no common divisor other than 1 that means gcd(x, y) = 1.
+Input Format
+In the first line you're given N and Q. Next line contains N space separated integers denoting the elements of the array a. Then the following Q lines contain an integer x.
+Constraints
+1 <= N, Q, a[i], x <= 200000
+Output Format
+For each query print the answer of the query in each line.
+Sample Input 0
+5 5
+1 2 3 4 5
+1
+2
+3
+4
+5
+Sample Output 0
+5
+3
+4
+3
+4
+*/
+
+#include <bits/stdc++.h>
+using namespace std;
+ 
+const int MAX = 200000;
+vector<int> primes;
+bool comp[MAX + 5];
+int freq[MAX + 5], seen[MAX + 5];
+ 
+void sieve()
+{
+    for (int i = 2; i * i <= MAX; i++)
+    {
+        if (!comp[i])
+        {
+            for (int j = i * i; j <= MAX; j += i)
+            {
+                comp[j] = 1;
+            }
+        }
+    }
+    primes.push_back(2);
+    for (int i = 3; i <= MAX; i += 2)
+    {
+        if (!comp[i]) primes.push_back(i);
+    }
+}
+ 
+bool checkBit(int n, int pos)
+{
+    return (n & (1 << pos)) > 0;
+}
+ 
+vector<int> factorize(int elem)
+{
+    vector<int> factors;
+    for (int i = 0; i < primes.size() && primes[i] <= (elem / primes[i]); i++)
+    {
+        if (elem % primes[i] == 0)
+        {
+            factors.push_back(primes[i]);
+            while (elem % primes[i] == 0)
+            {
+                elem /= primes[i];
+            }
+        }
+    }
+    if (elem > 1) factors.push_back(elem);
+    return factors;
+}
+ 
+void process(int elem)
+{
+    auto factors = factorize(elem);
+    int SIZE = factors.size();
+    for (int mask = 1; mask < (1 << SIZE); mask++)
+    {
+        int constructed_num = 1;
+        for (int i = 0; i < SIZE; i++)
+        {
+            if (checkBit(mask, i))
+            {
+                constructed_num *= factors[i];
+            }
+        }
+        freq[constructed_num]++;
+    }
+}
+ 
+int get_copr_pair_count_with(int x, int n)
+{
+    if (seen[x] != -1) return seen[x];
+    auto factors = factorize(x);
+    int SIZE = factors.size();
+    int result = 0;
+    for (int mask = 1; mask < (1 << SIZE); mask++)
+    {
+        int constructed_num = 1;
+        int parity = 0;
+        for (int i = 0; i < SIZE; i++)
+        {
+            if (checkBit(mask, i))
+            {
+                constructed_num *= factors[i];
+                parity++;
+            }
+        }
+        if (parity % 2 == 0)
+            result -= freq[constructed_num];
+        else
+            result += freq[constructed_num];
+    }
+    return seen[x] = n - result;
+}
+ 
+int main()
+{
+    sieve();
+    memset(seen, -1, sizeof seen);
+    int n, q, elem;
+    scanf("%d %d", &n, &q);
+    for (int i = 0; i < n; i++)
+    {
+        scanf("%d", &elem);
+        process(elem);
+    }
+    while(q--)
+    {
+        int x;
+        scanf("%d", &x);
+        printf("%d\n", get_copr_pair_count_with(x, n));
+    }
+    return 0;
+}
+ 
