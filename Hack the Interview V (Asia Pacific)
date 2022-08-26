@@ -1,0 +1,135 @@
+1.  New Keyboard
+
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'receivedText' function below.
+#
+# The function is expected to return a STRING.
+# The function accepts STRING S as parameter.
+#
+
+def receivedText(S):
+    # WRITE DOWN YOUR CODE HERE
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    S = input()
+
+    result = receivedText(S)
+
+    fptr.write(result + '\n')
+
+    fptr.close()
+
+2. The XOR Problem
+
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'maxXorValue' function below.
+#
+# The function is expected to return a STRING.
+# The function accepts following parameters:
+#  1. STRING x
+#  2. INTEGER k
+#
+
+def maxXorValue(x, k):
+    # Write your code here
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    t = int(input().strip())
+
+    for t_itr in range(t):
+        s = input()
+
+        k = int(input().strip())
+
+        y = maxXorValue(s, k)
+
+        fptr.write(y + '\n')
+
+    fptr.close()
+
+3. Jewel Game
+
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'getMaxScore' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts STRING jewels as parameter.
+#
+
+def getMaxScore(jewels):
+    # Write your code here
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    t = int(input().strip())
+
+    for t_itr in range(t):
+        jewels = input()
+
+        ans = getMaxScore(jewels)
+
+        fptr.write(str(ans) + '\n')
+
+    fptr.close()
+
+4.  Rerouting
+
+#!/bin/python3
+
+import math
+import os
+import random
+import re
+import sys
+
+#
+# Complete the 'getMinConnectionChange' function below.
+#
+# The function is expected to return an INTEGER.
+# The function accepts INTEGER_ARRAY connection as parameter.
+#
+
+def getMinConnectionChange(connection):
+    # Write your code here
+
+if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+
+    n = int(input().strip())
+
+    connection = list(map(int, input().rstrip().split()))
+
+    result = getMinConnectionChange(connection)
+
+    fptr.write(str(result) + '\n')
+
+    fptr.close()
